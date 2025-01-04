@@ -1,0 +1,240 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip> // For formatting
+#include <ctime> // For date handling
+
+using namespace std;
+
+// Structure for Customer
+struct Customer {
+    int id;
+    string name;
+    string email;
+    string phone;
+};
+
+// Structure for Room
+struct Room {
+    int roomNumber;
+    string type;
+    bool isAvailable;
+};
+
+// Structure for Booking
+struct Booking {
+    int bookingId;
+    string customerName;
+    int roomNumber;
+};
+
+// Global vectors to store customers and rooms
+vector<Customer> customers;
+vector<Room> rooms;
+
+// Function prototypes
+void adminLogin();
+void customerLogin();
+void addCustomer();
+void addRoom();
+void viewRooms();
+void bookRoom();
+void cancelBooking();
+void mainMenu();
+
+// Utility function to get current date
+int getCurrentDate() {
+    time_t t = time(0);       // Get current time
+    tm *now = localtime(&t);  // Convert to local time structure
+    return now->tm_yday;      // Return day of the year (1-365)
+}
+
+// Constants
+const string ADMIN_PASSWORD = "1234";
+const string CUSTOMER_PASSWORD = "5678";
+
+int main() {
+    mainMenu();
+    return 0;
+}
+
+void mainMenu() {
+    int choice;
+    while (true) {
+        cout << "\n--- Hotel Room Booking System ---\n";
+        cout << "1. Admin Login\n";
+        cout << "2. Customer Login\n";
+        cout << "3. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                adminLogin();
+                break;
+            case 2:
+                customerLogin();
+                break;
+            case 3:
+                cout << "Exiting the system. Goodbye!\n";
+                return;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    }
+}
+
+void adminLogin() {
+    string password;
+    cout << "Enter Admin Password: ";
+    cin >> password;
+
+    if (password == ADMIN_PASSWORD) {
+        int choice;
+        while (true) {
+            cout << "\n--- Admin Menu ---\n";
+            cout << "1. Add Customer\n";
+            cout << "2. Add Room\n";
+            cout << "3. View Rooms\n";
+            cout << "4. Logout\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1:
+                    addCustomer();
+                    break;
+                case 2:
+                    addRoom();
+                    break;
+                case 3:
+                    viewRooms();
+                    break;
+                case 4:
+                    cout << "Logging out...\n";
+                    return;
+                default:
+                    cout << "Invalid choice. Please try again.\n";
+            }
+        }
+    } else {
+        cout << "Incorrect password. Access denied.\n";
+    }
+}
+
+void customerLogin() {
+    string password;
+    cout << "Enter Customer Password: ";
+    cin >> password;
+
+    if (password == CUSTOMER_PASSWORD) {
+        int choice;
+        while (true) {
+            cout << "\n--- Customer Menu ---\n";
+            cout << "1. View Rooms\n";
+            cout << "2. Book Room\n";
+            cout << "3. Cancel Booking\n";
+            cout << "4. Logout\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1:
+                    viewRooms();
+                    break;
+                case 2:
+                    bookRoom();
+                    break;
+                case 3:
+                    cancelBooking();
+                    break;
+                case 4:
+                    cout << "Logging out...\n";
+                    return;
+                default:
+                    cout << "Invalid choice. Please try again.\n";
+            }
+        }
+    } else {
+        cout << "Incorrect password. Access denied.\n";
+    }
+}
+
+void addCustomer() {
+    Customer newCustomer;
+    cout << "Enter Customer ID: ";
+    cin >> newCustomer.id;
+    cout << "Enter Customer Name: ";
+    cin.ignore();
+    getline(cin, newCustomer.name);
+    cout << "Enter Customer Email: ";
+    getline(cin, newCustomer.email);
+    cout << "Enter Customer Phone: ";
+    getline(cin, newCustomer.phone);
+
+    customers.push_back(newCustomer);
+    cout << "Customer added successfully!\n";
+}
+
+void addRoom() {
+    Room newRoom;
+    cout << "Enter Room Number: ";
+    cin >> newRoom.roomNumber;
+    cout << "Enter Room Type: ";
+    cin.ignore();
+    getline(cin, newRoom.type);
+
+    newRoom.isAvailable = true;
+    rooms.push_back(newRoom);
+    cout << "Room added successfully!\n";
+}
+
+void viewRooms() {
+    cout << "\n--- Room List ---\n";
+    cout << left << setw(10) << "Room No" << setw(20) << "Type" << "Status\n";
+    cout << string(40, '-') << "\n";
+
+    for (size_t i = 0; i < rooms.size(); i++) {
+        cout << left << setw(10) << rooms[i].roomNumber
+             << setw(20) << rooms[i].type
+             << (rooms[i].isAvailable ? "Available" : "Booked") << "\n";
+    }
+}
+
+void bookRoom() {
+    int roomNumber;
+    cout << "Enter Room Number to book: ";
+    cin >> roomNumber;
+
+    for (size_t i = 0; i < rooms.size(); i++) {
+        if (rooms[i].roomNumber == roomNumber) {
+            if (!rooms[i].isAvailable) {
+                cout << "Room is already booked.\n";
+            } else {
+                rooms[i].isAvailable = false;
+                cout << "Room " << roomNumber << " has been booked successfully!\n";
+            }
+            return;
+        }
+    }
+    cout << "Room Number not found.\n";
+}
+
+void cancelBooking() {
+    int roomNumber;
+    cout << "Enter Room Number to cancel booking: ";
+    cin >> roomNumber;
+
+    for (size_t i = 0; i < rooms.size(); i++) {
+        if (rooms[i].roomNumber == roomNumber) {
+            if (rooms[i].isAvailable) {
+                cout << "Room is not currently booked.\n";
+            } else {
+                rooms[i].isAvailable = true;
+                cout << "Room " << roomNumber << " booking has been canceled successfully!\n";
+            }
+            return;
+        }
+    }
+    cout << "Room Number not found.\n";
+}
